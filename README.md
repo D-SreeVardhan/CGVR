@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ## How to Run
 
 ```bash
-python Experiment_1.py
+python "Experiment_1(Bresenham_Line&Circle).py"
 ```
 
 The OpenGL window opens with the rendered line and circle, and the PNG snapshot is saved to:
@@ -41,13 +41,13 @@ output/exp1_bresenham_line_circle.png
 ### Custom Output Path
 
 ```bash
-python Experiment_1.py --output custom/screenshot.png
+python "Experiment_1(Bresenham_Line&Circle).py" --output custom/screenshot.png
 ```
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `Experiment_1.py` | Main program: Bresenham line + circle, PNG export |
+| `Experiment_1(Bresenham_Line&Circle).py` | Main program: Bresenham line + circle, PNG export |
 | `requirements.txt` | Python dependencies |
 | `output/exp1_bresenham_line_circle.png` | Rendered output image (pushed to GitHub) |

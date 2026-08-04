@@ -9,8 +9,8 @@ Requirements:
     pip install PyOpenGL PyOpenGL_accelerate Pillow
 
 Run:
-    python Experiment_1.py
-    python Experiment_1.py --output custom/screenshot.png
+    python "Experiment_1(Bresenham_Line&Circle).py"
+    python "Experiment_1(Bresenham_Line&Circle).py" --output custom/screenshot.png
 
 Controls (while the window is focused):
     s  -> save a PNG snapshot of the current frame
