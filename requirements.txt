@@ -1,3 +1,2 @@
 PyOpenGL
 PyOpenGL_accelerate
-Pillow
