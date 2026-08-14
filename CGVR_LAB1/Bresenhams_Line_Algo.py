@@ -9,9 +9,49 @@ terminal. The OpenGL window will then plot the line point-by-point.
 
 import math
 
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_LINES,
+    GL_LINE_STRIP,
+    GL_MODELVIEW,
+    GL_POINTS,
+    GL_PROJECTION,
+    glBegin,
+    glClear,
+    glClearColor,
+    glColor3f,
+    glEnd,
+    glLineWidth,
+    glLoadIdentity,
+    glMatrixMode,
+    glPointSize,
+    glRasterPos2f,
+    glVertex2f,
+)
+from OpenGL.GLU import gluOrtho2D
+from OpenGL.GLUT import (
+    GLUT_BITMAP_HELVETICA_10,
+    GLUT_DOUBLE,
+    GLUT_KEY_DOWN,
+    GLUT_KEY_LEFT,
+    GLUT_KEY_RIGHT,
+    GLUT_KEY_UP,
+    GLUT_RGB,
+    glutBitmapCharacter,
+    glutCreateWindow,
+    glutDisplayFunc,
+    glutInit,
+    glutInitDisplayMode,
+    glutInitWindowSize,
+    glutKeyboardFunc,
+    glutLeaveMainLoop,
+    glutMainLoop,
+    glutMouseWheelFunc,
+    glutPostRedisplay,
+    glutSpecialFunc,
+    glutSwapBuffers,
+    glutTimerFunc,
+)
 
 WIN_W, WIN_H = 600, 600
 
@@ -256,7 +296,7 @@ def display():
     glutSwapBuffers()
 
 
-def timer(value):
+def timer(_value):
     global current_index
     if current_index < len(line_points):
         current_index += 1
@@ -264,7 +304,7 @@ def timer(value):
     glutTimerFunc(30, timer, 0)
 
 
-def keyboard(key, x, y):
+def keyboard(key, _x, _y):
     if isinstance(key, bytes):
         key = key.decode('utf-8')
     if key in ('+', '='):
@@ -285,7 +325,7 @@ def keyboard(key, x, y):
         glutPostRedisplay()
 
 
-def special_keys(key, x, y):
+def special_keys(key, _x, _y):
     # Arrow keys pan the view around after zooming in
     if key == GLUT_KEY_UP:
         pan(0, 1)
@@ -297,7 +337,7 @@ def special_keys(key, x, y):
         pan(1, 0)
 
 
-def mouse_wheel(wheel, direction, x, y):
+def mouse_wheel(_wheel, direction, _x, _y):
     zoom(0.9 if direction > 0 else 1.1)
 
 
