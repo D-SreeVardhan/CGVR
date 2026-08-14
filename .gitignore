@@ -9,5 +9,12 @@ __pycache__/
 venv/
 env/
 
+# Generated output (keep the lab folders and their screenshots in Git)
+output/
+!CGVR_Intro/output/
+!CGVR_Intro/output/**
+!CGVR_LAB1/output/
+!CGVR_LAB1/output/**
+
 # Local rules folder (never push to git)
 rules/
