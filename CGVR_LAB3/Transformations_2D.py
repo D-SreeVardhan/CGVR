@@ -17,10 +17,12 @@ from OpenGL.GL import (
     GL_MODELVIEW,
     GL_POINTS,
     GL_PROJECTION,
+    GL_QUADS,
     glBegin,
     glClear,
     glClearColor,
     glColor3f,
+    glColor4f,
     glDisable,
     glEnable,
     glEnd,
@@ -29,6 +31,8 @@ from OpenGL.GL import (
     glLoadIdentity,
     glMatrixMode,
     glPointSize,
+    glPopMatrix,
+    glPushMatrix,
     glRasterPos2f,
     glVertex2f,
 )
@@ -58,7 +62,7 @@ from OpenGL.GLUT import (
     glutSwapBuffers,
 )
 
-WIN_W, WIN_H = 800, 700
+WIN_W, WIN_H = 1100, 700
 
 
 # ------------------------------------------------------------------
@@ -267,7 +271,9 @@ def read_transformation():
 original_points = []
 transformed_points = []
 transform_name = ""
+transform_matrix = None
 show_vertex_labels = True
+show_math_panel = True
 
 view_half = 300.0
 center_x, center_y = 0.0, 0.0
@@ -424,6 +430,113 @@ def draw_vertices(points, r, g, b):
         draw_text(x + off, y + off, f"({x:g}, {y:g})")
 
 
+def format_matrix_rows(matrix):
+    rows = []
+    for row in matrix:
+        cells = "  ".join(f"{clean(v):7.3f}" for v in row)
+        rows.append(f"[ {cells} ]")
+    return rows
+
+
+def draw_screen_text(x, y, text, font=GLUT_BITMAP_HELVETICA_12):
+    """Draw text in pixel coordinates (origin bottom-left)."""
+    glRasterPos2f(x, y)
+    for ch in text:
+        glutBitmapCharacter(font, ord(ch))
+
+
+def draw_math_panel():
+    """Fixed right-side panel: matrix + P' values (screen space)."""
+    if not show_math_panel or transform_matrix is None:
+        return
+
+    panel_x = WIN_W - 360
+    panel_w = 350
+    panel_y = 20
+    panel_h = WIN_H - 40
+
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    gluOrtho2D(0, WIN_W, 0, WIN_H)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+
+    glColor4f(0.08, 0.08, 0.1, 1.0)
+    glBegin(GL_QUADS)
+    glVertex2f(panel_x, panel_y)
+    glVertex2f(panel_x + panel_w, panel_y)
+    glVertex2f(panel_x + panel_w, panel_y + panel_h)
+    glVertex2f(panel_x, panel_y + panel_h)
+    glEnd()
+
+    glColor3f(0.45, 0.45, 0.5)
+    glLineWidth(1.0)
+    glBegin(GL_LINES)
+    glVertex2f(panel_x, panel_y)
+    glVertex2f(panel_x, panel_y + panel_h)
+    glEnd()
+
+    tx = panel_x + 14
+    ty = panel_y + panel_h - 28
+    line = 18
+
+    glColor3f(1.0, 0.9, 0.4)
+    draw_screen_text(tx, ty, "CALCULATION / OUTPUT", GLUT_BITMAP_HELVETICA_18)
+    ty -= line * 1.4
+
+    glColor3f(0.85, 0.85, 0.85)
+    # wrap long title
+    title = transform_name
+    if len(title) > 38:
+        draw_screen_text(tx, ty, title[:38], GLUT_BITMAP_HELVETICA_10)
+        ty -= line
+        draw_screen_text(tx, ty, title[38:76], GLUT_BITMAP_HELVETICA_10)
+    else:
+        draw_screen_text(tx, ty, title, GLUT_BITMAP_HELVETICA_12)
+    ty -= line * 1.3
+
+    glColor3f(0.5, 0.85, 1.0)
+    draw_screen_text(tx, ty, "Homogeneous matrix M (3x3):", GLUT_BITMAP_HELVETICA_12)
+    ty -= line
+    glColor3f(0.95, 0.95, 0.95)
+    for row in format_matrix_rows(transform_matrix):
+        draw_screen_text(tx, ty, row, GLUT_BITMAP_HELVETICA_12)
+        ty -= line
+    ty -= line * 0.4
+
+    glColor3f(0.5, 0.85, 1.0)
+    draw_screen_text(tx, ty, "P' = M * [x  y  1]^T", GLUT_BITMAP_HELVETICA_12)
+    ty -= line * 1.2
+
+    glColor3f(0.75, 0.75, 0.75)
+    draw_screen_text(tx, ty, "Original  ->  Transformed", GLUT_BITMAP_HELVETICA_12)
+    ty -= line
+
+    for (x, y), (nx, ny) in zip(original_points, transformed_points):
+        if ty < panel_y + 50:
+            glColor3f(0.6, 0.6, 0.6)
+            draw_screen_text(tx, ty, "... (see terminal for all)", GLUT_BITMAP_HELVETICA_10)
+            break
+        glColor3f(0.35, 0.55, 1.0)
+        left = f"({x:g}, {y:g})"
+        glColor3f(0.95, 0.35, 0.35)
+        right = f"({nx:g}, {ny:g})"
+        glColor3f(0.9, 0.9, 0.9)
+        draw_screen_text(tx, ty, f"{left}  ->  {right}", GLUT_BITMAP_HELVETICA_12)
+        ty -= line
+
+    ty = panel_y + 28
+    glColor3f(0.55, 0.55, 0.55)
+    draw_screen_text(tx, ty, "m: toggle math panel", GLUT_BITMAP_HELVETICA_10)
+
+    glPopMatrix()
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
+
+
 def draw_hud():
     """Title / legend in world coords near the top-left of the current view."""
     x = center_x - view_half * 0.92
@@ -431,7 +544,7 @@ def draw_hud():
     step = view_half * 0.06
 
     glColor3f(0.95, 0.95, 0.95)
-    draw_text(x, y, transform_name, font=GLUT_BITMAP_HELVETICA_18)
+    draw_text(x, y, transform_name[:42], font=GLUT_BITMAP_HELVETICA_18)
     glColor3f(0.35, 0.55, 1.0)
     draw_text(x, y - step, "blue dashed = original", font=GLUT_BITMAP_HELVETICA_12)
     glColor3f(0.95, 0.3, 0.3)
@@ -453,11 +566,12 @@ def display():
     draw_vertices(transformed_points, 0.95, 0.25, 0.25)
 
     draw_hud()
+    draw_math_panel()
     glutSwapBuffers()
 
 
 def keyboard(key, _x, _y):
-    global view_half, center_x, center_y, show_vertex_labels
+    global view_half, center_x, center_y, show_vertex_labels, show_math_panel
     if isinstance(key, bytes):
         key = key.decode("utf-8")
     if key in ("+", "="):
@@ -471,6 +585,9 @@ def keyboard(key, _x, _y):
         glutPostRedisplay()
     elif key in ("l", "L"):
         show_vertex_labels = not show_vertex_labels
+        glutPostRedisplay()
+    elif key in ("m", "M"):
+        show_math_panel = not show_math_panel
         glutPostRedisplay()
     elif key in ("q", "Q", "\x1b"):
         glutLeaveMainLoop()
@@ -497,14 +614,16 @@ def init():
 
 
 def main():
-    global original_points, transformed_points, transform_name
+    global original_points, transformed_points, transform_name, transform_matrix
 
     original_points = read_shape()
     matrix, transform_name = read_transformation()
+    transform_matrix = matrix
     transformed_points = transform_points(matrix, original_points)
 
     print(f"\n{transform_name}")
-    print("\nHomogeneous transformation matrix:")
+    print("\nCalculation: P' = M * [x  y  1]^T")
+    print("\nHomogeneous transformation matrix M:")
     print_matrix(matrix)
     print("\nOriginal -> Transformed:")
     for (x, y), (nx, ny) in zip(original_points, transformed_points):
@@ -516,6 +635,7 @@ def main():
     print("  '+' / '-'    -> zoom in / out")
     print("  Arrow keys   -> pan")
     print("  'l' -> toggle vertex labels")
+    print("  'm' -> toggle math panel")
     print("  'r' -> reset view, 'q' -> quit\n")
 
     glutInit()

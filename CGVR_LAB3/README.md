@@ -46,6 +46,7 @@ Follow the terminal prompts for vertices and transformation parameters. The Open
 | Mouse wheel | Zoom in / out |
 | Arrow keys | Pan the view |
 | `l` | Toggle vertex-coordinate labels |
+| `m` | Toggle calculation / math panel |
 | `r` | Reset zoom and pan |
 | `q` / `Esc` | Quit |
 
