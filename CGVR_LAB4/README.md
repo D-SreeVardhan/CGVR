@@ -4,7 +4,7 @@
 
 Implements **composite transformations** by multiplying homogeneous 3×3 matrices in OpenGL (PyOpenGL + GLUT).
 
-You enter a shape once, then chain any of Lab 3’s four operations. The program builds one composite matrix
+You enter a shape once, then chain any of Lab 3’s operations. The program builds one composite matrix
 
 ```text
 M = Tn · … · T2 · T1
@@ -18,6 +18,7 @@ and applies **M** to every vertex (first transform entered is applied first).
 2. **Rotation** — CCR or CR, angle in degrees, about origin or an arbitrary pivot
 3. **Scaling** — by `(sx, sy)` about origin or an arbitrary fixed point
 4. **Reflection** — over the X or Y axis, about origin or an arbitrary point
+5. **Shearing** — along X, along Y, or both (`shx`, `shy`), about origin or a reference point
 
 ## Output
 
@@ -41,7 +42,7 @@ python Composite_Transformations_2D.py
 
 1. Enter shape vertices (1 or more).
 2. Enter how many transforms to compose.
-3. For each step, pick Translation / Rotation / Scaling / Reflection and its parameters.
+3. For each step, pick Translation / Rotation / Scaling / Reflection / Shearing and its parameters.
 4. OpenGL shows original (blue dashed) vs composite result (red solid).
 
 ### Keyboard and Mouse Controls

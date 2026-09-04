@@ -15,6 +15,7 @@ Enter one or more points (vertices) in the terminal, choose a transformation, th
 2. **Rotation** — CCR or CR, angle in degrees, about origin or an arbitrary pivot
 3. **Scaling** — by `(sx, sy)` about origin or an arbitrary fixed point
 4. **Reflection** — over the X or Y axis, about origin or an arbitrary point
+5. **Shearing** — along X, along Y, or both (`shx`, `shy`), about origin or a reference point
 
 ## Output
 

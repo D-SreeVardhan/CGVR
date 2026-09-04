@@ -113,6 +113,19 @@ def reflection_matrix(axis):
     raise ValueError(f"Unsupported reflection axis: {axis}")
 
 
+def shearing_matrix(shx, shy):
+    """
+    Shear in homogeneous form:
+        x' = x + shx * y
+        y' = shy * x + y
+    """
+    return [
+        [1, shx, 0],
+        [shy, 1, 0],
+        [0, 0, 1],
+    ]
+
+
 def multiply_matrices(a, b):
     result = [[0.0, 0.0, 0.0] for _ in range(3)]
     for row in range(3):
@@ -233,12 +246,42 @@ def read_reflection():
     )
 
 
+def read_shearing():
+    print("\nShearing type")
+    print("  1. Along X  (x' = x + shx*y)")
+    print("  2. Along Y  (y' = y + shy*x)")
+    print("  3. Both     (enter shx and shy)")
+    choice = input("Choice: ").strip()
+
+    if choice == "1":
+        shx = float(input("shx: "))
+        shy = 0.0
+        detail = f"along X with shx={shx:g}"
+    elif choice == "2":
+        shy = float(input("shy: "))
+        shx = 0.0
+        detail = f"along Y with shy={shy:g}"
+    elif choice == "3":
+        shx = float(input("shx: "))
+        shy = float(input("shy: "))
+        detail = f"with shx={shx:g}, shy={shy:g}"
+    else:
+        raise SystemExit("Invalid shearing choice.")
+
+    px, py, pivot_name = read_pivot("Reference")
+    return (
+        about_point(shearing_matrix(shx, shy), px, py),
+        f"Shearing {detail} about {pivot_name}",
+    )
+
+
 def read_transformation():
     print("\nChoose a transformation")
     print("  1. Translation")
     print("  2. Rotation")
     print("  3. Scaling")
     print("  4. Reflection")
+    print("  5. Shearing")
     choice = input("Choice: ").strip()
 
     if choice == "1":
@@ -260,6 +303,9 @@ def read_transformation():
 
     if choice == "4":
         return read_reflection()
+
+    if choice == "5":
+        return read_shearing()
 
     raise SystemExit("Invalid transformation choice.")
 
