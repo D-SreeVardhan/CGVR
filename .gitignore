@@ -23,8 +23,14 @@ output/
 !CGVR_LAB4/output/**
 !CGVR_LAB5/output/
 !CGVR_LAB5/output/**
+!CGVR_LAB6/output/
+!CGVR_LAB6/output/**
+!CGVR_LAB7/output/
+!CGVR_LAB7/output/**
 !CGVR_LAB8/output/
 !CGVR_LAB8/output/**
+!CGVR_LAB10/output/
+!CGVR_LAB10/output/**
 
 # Local rules folder (never push to git)
 rules/
