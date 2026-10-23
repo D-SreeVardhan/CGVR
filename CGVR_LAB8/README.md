@@ -77,7 +77,7 @@ The rasterizer blends these continuously across all 20 faces, visibly demonstrat
 
 | File | Description |
 |------|-------------|
-| `Screenshot 2026-10-23 at 12.06.54 PM.png` | Vertex gradient mode — raw rasterizer interpolation |
+| `Lab8_VertexFragmentShader.png` | Vertex gradient mode — raw rasterizer interpolation |
 
 ---
 

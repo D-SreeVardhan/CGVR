@@ -34,7 +34,7 @@ Implemented in pure Python using PyOpenGL and GLUT. Each lab runs as a standalon
 ### Lab 8 · Vertex and Fragment Shaders
 A procedurally generated icosahedron rendered by a custom URP HLSL shader. The vertex shader transforms each of the 12 corners and passes a position-derived HSV color; the fragment shader cycles through three modes — raw vertex gradient, barycentric wireframe overlay, and per-pixel N·L + specular lighting.
 
-![Lab 8](CGVR_LAB8/output/Screenshot%202026-10-23%20at%2012.06.54%E2%80%AFPM.png)
+![Lab 8](CGVR_LAB8/output/Lab8_VertexFragmentShader.png)
 
 ### Lab 9 · Interactive 3D Scene
 A Unity scene built entirely at runtime from a single C# script attached to the Main Camera. A `CharacterController` provides gravity and collision so the camera cannot clip through the floor or objects. Tab switches between first-person camera mode and an interact mode where objects can be selected, translated, rotated, and scaled.
