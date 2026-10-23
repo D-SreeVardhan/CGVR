@@ -1,73 +1,96 @@
 # CGVR Lab 10
 
-## 3D Viewing Pipeline — Projection and Viewport Mapping
+## 3D Viewing Pipeline — Unity
 
-Implements the complete **3D Viewing Pipeline** using OpenGL + GLSL shaders, with every transformation stage displayed live in the info panel.
-
-### Pipeline Stages
+Demonstrates the complete real-time 3D viewing pipeline using Unity's live GPU matrices:
 
 ```
-Model Space ──[Model Matrix]──► World Space
-World Space ──[View  Matrix]──► Eye / Camera Space
-Eye Space   ──[Proj  Matrix]──► Clip Space
-Clip Space  ──[÷ w  (P-div)]──► NDC Space   ∈ [-1, 1]³
-NDC Space   ──[Viewport Map]──► Screen Space  [px]
+Model Space  →  World Space  →  Eye/Camera Space
+     →  Clip Space  →  NDC  →  Screen Space
 ```
 
-### Stage Details
+A live panel tracks every stage for the selected object, and a split-screen view lets
+you directly compare **Perspective** vs **Orthographic** projection side by side.
 
-| Stage | Transform | Description |
-|-------|-----------|-------------|
-| **Model → World** | `M = R × S` | Object rotation & scale |
-| **World → Eye** | `V = LookAt(eye, center, up)` | Camera orientation |
-| **Eye → Clip** | `P = Perspective` or `Ortho` | Frustum projection |
-| **Clip → NDC** | `x_ndc = x_clip / w_clip` | Perspective divide |
-| **NDC → Screen** | `x_s = (x_ndc+1) × W/2` | Viewport mapping |
+---
 
-The left panel shows the **actual 4×4 matrices** for stages 1–3, updated live as you orbit the camera or rotate the cube.
+## What it Shows
 
-### Split View (`v` key)
+| Pipeline Stage | What Happens | Data Shown |
+|---|---|---|
+| ① Model → World | Object's transform applied | position, rotation, scale |
+| ② World → Eye | Scene seen from camera | worldToCameraMatrix |
+| ③ Eye → Clip | Projection (perspective / ortho) | projectionMatrix (4×4) |
+| ④ Clip → NDC | Perspective divide ÷ w | clip coords → (x/w, y/w, z/w) |
+| ⑤ NDC → Screen | Viewport mapping | screen pixel (x, y), depth |
 
-Press `v` to see **Perspective** (left) and **Orthographic** (right) projections rendered simultaneously — the classic way to observe the difference parallel vs convergent projection makes on depth perception.
+---
 
-## Output
+## Unity Setup
 
-```text
-output/
-```
+### Step 1 — Use the existing Unity project
+Re-use the CGVR_Lab9 Unity project (or any 3D / URP Unity 6 project).
 
-## Requirements
+### Step 2 — Create a new Scene
+**File → New Scene → Save** (name it `Lab10`)
 
-```bash
-pip install -r requirements.txt
-```
+### Step 3 — Add the script
+1. Right-click `Assets` → **Create → C# Script** → name it `Lab10Controller`
+2. Open it and **replace all contents** with `Lab10Controller.cs`
+3. Save (`⌘ S`)
 
-## How to Run
+### Step 4 — Attach to camera
+1. Click **Main Camera** in the Hierarchy
+2. **Inspector → Add Component** → search `Lab10Controller` → add
+3. Press **▶ Play**
 
-```bash
-python Viewing_Pipeline_3D.py
-```
+> **Note:** If you get an input error, go to  
+> **Edit → Project Settings → Player → Other Settings → Active Input Handling → Both**
 
-### Controls
+---
+
+## Controls
 
 | Key | Action |
 |-----|--------|
-| Arrow keys | Orbit camera |
-| `[` / `]` | Zoom in / out |
-| `W` / `S` | Pitch main cube |
-| `A` / `D` | Yaw main cube |
-| `o` | Toggle Perspective ↔ Orthographic |
-| `v` | Split view (Perspective \| Orthographic) |
-| `+` / `-` | FOV (perspective) or ortho size |
-| Mouse drag | Orbit camera |
-| `r` | Reset all |
-| `p` | Toggle info panel |
-| `Esc` | Quit |
+| `← → ↑ ↓` | Orbit camera around the scene |
+| `+` / `-` | Zoom in / out |
+| `F` / `G` | Widen / narrow field of view |
+| `V` | Toggle split view (Perspective \| Orthographic) |
+| `1` / `2` / `3` | Select object — updates all pipeline stage data |
+| `H` | Show / hide the pipeline panel |
+| Scroll wheel | Zoom |
+
+---
+
+## Scene Contents (built at runtime)
+
+| Object | Shape | Colour | Position |
+|--------|-------|--------|----------|
+| Cube | Box | Red | (-3.5, 0.5, 2) |
+| Sphere | Sphere | Blue | (0, 0.5, 0) |
+| Cylinder | Cylinder | Yellow | (3.5, 1.0, -2) |
+| Floor | Plane | Dark grey | (0, 0, 0) |
+
+Objects are placed at different Z-depths deliberately — this makes the perspective
+foreshortening effect clearly visible when you switch projection modes.
+
+---
+
+## Output
+
+| File | Description |
+|------|-------------|
+| `Lab10_SplitView.png` | Split-screen: perspective vs orthographic |
+| `Lab10_Pipeline.png` | Pipeline panel with live matrix data |
+| `Lab10_FOVChange.png` | Narrow FOV vs wide FOV comparison |
+
+---
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `Viewing_Pipeline_3D.py` | Full MVP pipeline demo with live matrices |
-| `requirements.txt` | Python dependencies |
-| `output/` | Folder for rendered output screenshots |
+| `Lab10Controller.cs` | Unity C# script — self-contained, attach to Main Camera |
+| `README.md` | This setup guide |
+| `output/` | Screenshots from Play mode |

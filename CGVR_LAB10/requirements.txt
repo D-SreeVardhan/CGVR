@@ -1,2 +1,0 @@
-PyOpenGL
-PyOpenGL_accelerate
