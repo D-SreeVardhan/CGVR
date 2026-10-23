@@ -44,7 +44,7 @@ A Unity scene built entirely at runtime from a single C# script attached to the 
 ### Lab 10 · 3D Viewing Pipeline
 Split-screen Unity scene with a perspective camera on the left and an orthographic camera on the right — both driven by the same orbit. A live HUD panel tracks every stage of the GPU pipeline (model matrix → view matrix → projection matrix → NDC → screen coordinates) for a selected object, updating in real time as the camera moves.
 
-![Lab 10](CGVR_LAB10/output/Screenshot%202026-10-23%20at%2011.30.45%E2%80%AFPM.png)
+![Lab 10](CGVR_LAB10/output/Lab10_ViewingPipeline.png)
 
 ---
 

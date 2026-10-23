@@ -81,9 +81,7 @@ foreshortening effect clearly visible when you switch projection modes.
 
 | File | Description |
 |------|-------------|
-| `Lab10_SplitView.png` | Split-screen: perspective vs orthographic |
-| `Lab10_Pipeline.png` | Pipeline panel with live matrix data |
-| `Lab10_FOVChange.png` | Narrow FOV vs wide FOV comparison |
+| `Lab10_ViewingPipeline.png` | Split-screen: perspective vs orthographic with live pipeline panel |
 
 ---
 
