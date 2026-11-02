@@ -1,0 +1,33 @@
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+.utmp/
+
+# IDE
+.vs/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+
+# Build artefacts
+*.apk
+*.aab
+*.unitypackage
+*.app/
+
+# WebGL dev server output
+build/
+
+# Preview screenshots are tracked (root .gitignore also has an exception for this folder)
+output/Runtime_retro.png
+
+# macOS
+.DS_Store
