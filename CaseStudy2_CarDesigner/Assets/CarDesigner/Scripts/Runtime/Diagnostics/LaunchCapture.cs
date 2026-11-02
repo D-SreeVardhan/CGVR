@@ -7,7 +7,7 @@ namespace CarDesigner.Diagnostics
 {
     /// <summary>
     /// Development-build hook for unattended UI checks:
-    ///   Player -atelierCapture out.png [-atelierScenario preset|doors|exploded|finish]
+    ///   Player -atelierCapture out.png [-atelierScenario preset|doors|exploded|finish|switchcar]
     /// waits for the studio to settle, stages the scenario, writes a screenshot and quits.
     /// Stripped from release builds.
     /// </summary>
@@ -48,9 +48,12 @@ namespace CarDesigner.Diagnostics
 
         void Stage()
         {
-            var rig = FindAnyObjectByType<CarRig>();
+            var switcher = FindAnyObjectByType<CarSwitcher>();
             var selector = FindAnyObjectByType<PartSelector>();
-            if (rig == null || selector == null) return;
+            if (switcher == null || selector == null) return;
+            if (scenario == "switchcar") switcher.SwitchTo((switcher.ActiveIndex + 1) % switcher.Count);
+            CarRig rig = switcher.ActiveRig;
+            if (rig == null) return;
 
             switch (scenario)
             {
@@ -67,7 +70,7 @@ namespace CarDesigner.Diagnostics
                     rig.Exploded = true;
                     break;
                 case "finish":
-                    var paint = FindAnyObjectByType<CarPaint>();
+                    CarPaint paint = switcher.ActivePaint;
                     if (paint != null) paint.Apply(paint.Finishes.Count - 1);
                     break;
             }
