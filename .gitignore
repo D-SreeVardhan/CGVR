@@ -33,6 +33,8 @@ output/
 !CGVR_LAB9/output/**
 !CGVR_LAB10/output/
 !CGVR_LAB10/output/**
+!CaseStudy2_CarDesigner/output/
+!CaseStudy2_CarDesigner/output/**
 
 # Local rules folder (never push to git)
 rules/
