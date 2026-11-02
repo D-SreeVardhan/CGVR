@@ -43,6 +43,10 @@ namespace CarDesigner.UI
         Slider rotation, scale;
         Text rotationValue, scaleValue;
         Button designMode, showroomMode, doorsButton, explodeButton;
+        readonly List<Button> carButtons = new List<Button>();
+        Text dimsText;
+        CarRig boundRig;
+        CarPaint boundPaint;
         CarPart current;
         bool suppressCallbacks;
         float smoothedFrameTime = 1f / 60f, statsTimer;
@@ -62,17 +66,31 @@ namespace CarDesigner.UI
         void OnEnable()
         {
             selector.SelectionChanged += OnSelectionChanged;
-            if (rig != null) rig.PartEdited += OnPartEdited;
-            if (paint != null) paint.FinishChanged += OnFinishChanged;
             if (switcher != null) switcher.SlotChanged += OnCarSwitched;
+            BindCar();
         }
 
         void OnDisable()
         {
             selector.SelectionChanged -= OnSelectionChanged;
-            if (rig != null) rig.PartEdited -= OnPartEdited;
-            if (paint != null) paint.FinishChanged -= OnFinishChanged;
             if (switcher != null) switcher.SlotChanged -= OnCarSwitched;
+            UnbindCar();
+        }
+
+        void BindCar()
+        {
+            boundRig = rig;
+            boundPaint = paint;
+            if (boundRig != null) boundRig.PartEdited += OnPartEdited;
+            if (boundPaint != null) boundPaint.FinishChanged += OnFinishChanged;
+        }
+
+        void UnbindCar()
+        {
+            if (boundRig != null) boundRig.PartEdited -= OnPartEdited;
+            if (boundPaint != null) boundPaint.FinishChanged -= OnFinishChanged;
+            boundRig = null;
+            boundPaint = null;
         }
 
         void Start()
@@ -127,11 +145,21 @@ namespace CarDesigner.UI
             Text title = UiKit.Label(brand, "ATELIER <color=#E3A23B>01</color>", 30, Palette.Text, style: FontStyle.Bold);
             title.supportRichText = true;
             UiKit.Size(title, height: 36f);
-            Vector3 d = rig != null ? rig.DimensionsMetres : Vector3.zero;
-            Text dims = UiKit.Label(brand, string.Format(Invariant,
-                "SPORTS COUPE  ·  1:1 SCALE  ·  L {0:0.00} m   W {1:0.00} m   H {2:0.00} m", d.z, d.x, d.y),
-                16, Palette.Muted);
-            UiKit.Size(dims, height: 22f);
+            dimsText = UiKit.Label(brand, "", 16, Palette.Muted);
+            UiKit.Size(dimsText, height: 22f);
+            RefreshCarInfo();
+
+            if (switcher != null && switcher.Count > 1)
+            {
+                for (int i = 0; i < switcher.Count; i++)
+                {
+                    int index = i;
+                    Button car = UiKit.Button(bar, switcher.SlotName(i).ToUpperInvariant(), () => switcher.SwitchTo(index), 16);
+                    UiKit.Size(car, 170f, 52f);
+                    carButtons.Add(car);
+                }
+                RefreshCarButtons();
+            }
 
             Spacer(bar);
 
@@ -355,15 +383,41 @@ namespace CarDesigner.UI
             if (paint != null) finishName.text = index >= 0 ? paint.Finishes[index].name.ToUpperInvariant() : "";
         }
 
-        /// <summary>Called when CarSwitcher changes the active car. Rebuilds the component list and resets selection.</summary>
         void OnCarSwitched(int _)
         {
-            // Rewire events to the new car's rig and paint
-            // (old rig/paint references are already gone via the switcher property)
+            UnbindCar();
+            BindCar();
             selector.Select(null);
             orbit.ResetView();
+
+            bool visible = componentPanel.activeSelf;
+            Destroy(componentPanel);
+            partButtons.Clear();
             BuildComponentPanel();
+            componentPanel.SetActive(visible);
+
+            UiKit.SetActive(doorsButton, rig != null && rig.DoorsOpen);
+            UiKit.SetActive(explodeButton, rig != null && rig.Exploded);
+            RefreshCarInfo();
+            RefreshCarButtons();
             if (paint != null) OnFinishChanged(paint.Current);
+        }
+
+        void RefreshCarInfo()
+        {
+            if (rig == null)
+            {
+                dimsText.text = "NO CAR ASSIGNED";
+                return;
+            }
+            Vector3 d = rig.DimensionsMetres;
+            dimsText.text = string.Format(Invariant, "{0}  ·  1:1 SCALE  ·  L {1:0.00} m   W {2:0.00} m   H {3:0.00} m",
+                switcher.ActiveName.ToUpperInvariant(), d.z, d.x, d.y);
+        }
+
+        void RefreshCarButtons()
+        {
+            for (int i = 0; i < carButtons.Count; i++) UiKit.SetActive(carButtons[i], i == switcher.ActiveIndex);
         }
 
         void RefreshControls()
