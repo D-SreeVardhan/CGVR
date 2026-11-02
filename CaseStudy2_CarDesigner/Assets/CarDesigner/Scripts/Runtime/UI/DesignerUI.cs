@@ -362,7 +362,7 @@ namespace CarDesigner.UI
             // (old rig/paint references are already gone via the switcher property)
             selector.Select(null);
             orbit.ResetView();
-            BuildComponentList();
+            BuildComponentPanel();
             if (paint != null) OnFinishChanged(paint.Current);
         }
 
