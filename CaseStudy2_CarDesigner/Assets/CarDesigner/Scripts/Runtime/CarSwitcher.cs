@@ -8,6 +8,7 @@ namespace CarDesigner
     /// DesignerUI reads the active rig and paint through this component.
     /// </summary>
     [DisallowMultipleComponent]
+    [DefaultExecutionOrder(-90)]
     public class CarSwitcher : MonoBehaviour
     {
         [Serializable]
@@ -34,6 +35,9 @@ namespace CarDesigner
 
         void Awake()
         {
+            // Rigs saved inactive never ran Awake; CarPaint (order 0) needs their parts captured first.
+            foreach (Slot slot in slots)
+                if (slot.rig != null) slot.rig.gameObject.SetActive(true);
             ApplyVisibility();
         }
 
