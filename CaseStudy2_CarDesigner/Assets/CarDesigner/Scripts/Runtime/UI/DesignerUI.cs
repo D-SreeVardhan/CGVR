@@ -21,10 +21,12 @@ namespace CarDesigner.UI
 
         static readonly string[] AxisNames = { "X  axle", "Y  vertical", "Z  forward" };
 
-        [SerializeField] CarRig rig;
+        [SerializeField] CarSwitcher switcher;
         [SerializeField] PartSelector selector;
         [SerializeField] OrbitCamera orbit;
-        [SerializeField] CarPaint paint;
+
+        CarRig rig => switcher != null ? switcher.ActiveRig : null;
+        CarPaint paint => switcher != null ? switcher.ActivePaint : null;
 
         readonly Dictionary<CarPart, Button> partButtons = new Dictionary<CarPart, Button>();
         readonly Slider[] translation = new Slider[3];
@@ -60,22 +62,24 @@ namespace CarDesigner.UI
         void OnEnable()
         {
             selector.SelectionChanged += OnSelectionChanged;
-            rig.PartEdited += OnPartEdited;
-            paint.FinishChanged += OnFinishChanged;
+            if (rig != null) rig.PartEdited += OnPartEdited;
+            if (paint != null) paint.FinishChanged += OnFinishChanged;
+            if (switcher != null) switcher.SlotChanged += OnCarSwitched;
         }
 
         void OnDisable()
         {
             selector.SelectionChanged -= OnSelectionChanged;
-            rig.PartEdited -= OnPartEdited;
-            paint.FinishChanged -= OnFinishChanged;
+            if (rig != null) rig.PartEdited -= OnPartEdited;
+            if (paint != null) paint.FinishChanged -= OnFinishChanged;
+            if (switcher != null) switcher.SlotChanged -= OnCarSwitched;
         }
 
         void Start()
         {
             SetShowroom(false);
             OnSelectionChanged(selector.Selected);
-            OnFinishChanged(paint.Current);
+            if (paint != null) OnFinishChanged(paint.Current);
         }
 
         void Update()
@@ -123,7 +127,7 @@ namespace CarDesigner.UI
             Text title = UiKit.Label(brand, "ATELIER <color=#E3A23B>01</color>", 30, Palette.Text, style: FontStyle.Bold);
             title.supportRichText = true;
             UiKit.Size(title, height: 36f);
-            Vector3 d = rig.DimensionsMetres;
+            Vector3 d = rig != null ? rig.DimensionsMetres : Vector3.zero;
             Text dims = UiKit.Label(brand, string.Format(Invariant,
                 "SPORTS COUPE  ·  1:1 SCALE  ·  L {0:0.00} m   W {1:0.00} m   H {2:0.00} m", d.z, d.x, d.y),
                 16, Palette.Muted);
@@ -182,6 +186,8 @@ namespace CarDesigner.UI
             scroll.horizontal = false;
             scroll.movementType = ScrollRect.MovementType.Clamped;
             scroll.scrollSensitivity = 30f;
+
+            if (rig == null) return;
 
             foreach (PartCategory category in CategoryOrder)
             {
@@ -290,10 +296,11 @@ namespace CarDesigner.UI
             Text caption = UiKit.Label(bar.transform, "FINISH", 14, Palette.Muted, style: FontStyle.Bold);
             UiKit.Size(caption, 72f);
 
-            for (int i = 0; i < paint.Finishes.Count; i++)
+            var finishes = paint != null ? paint.Finishes : System.Array.Empty<CarPaint.Finish>() as IReadOnlyList<CarPaint.Finish>;
+            for (int i = 0; i < finishes.Count; i++)
             {
                 int index = i;
-                Image swatch = UiKit.Surface("Swatch", bar.transform, paint.Finishes[i].color);
+                Image swatch = UiKit.Surface("Swatch", bar.transform, finishes[i].color);
                 var button = swatch.gameObject.AddComponent<Button>();
                 button.targetGraphic = swatch;
                 button.onClick.AddListener(() => paint.Apply(index));
@@ -345,7 +352,18 @@ namespace CarDesigner.UI
         void OnFinishChanged(int index)
         {
             for (int i = 0; i < swatches.Count; i++) swatches[i].GetComponent<Outline>().enabled = i == index;
-            finishName.text = index >= 0 ? paint.Finishes[index].name.ToUpperInvariant() : "";
+            if (paint != null) finishName.text = index >= 0 ? paint.Finishes[index].name.ToUpperInvariant() : "";
+        }
+
+        /// <summary>Called when CarSwitcher changes the active car. Rebuilds the component list and resets selection.</summary>
+        void OnCarSwitched(int _)
+        {
+            // Rewire events to the new car's rig and paint
+            // (old rig/paint references are already gone via the switcher property)
+            selector.Select(null);
+            orbit.ResetView();
+            BuildComponentList();
+            if (paint != null) OnFinishChanged(paint.Current);
         }
 
         void RefreshControls()
@@ -380,7 +398,7 @@ namespace CarDesigner.UI
 
         void Modify(System.Func<DesignEdit, DesignEdit> change)
         {
-            if (suppressCallbacks || current == null) return;
+            if (suppressCallbacks || current == null || rig == null) return;
             rig.SetEdit(current, change(current.Edit));
         }
 
@@ -406,6 +424,7 @@ namespace CarDesigner.UI
 
         void ApplyCasePreset()
         {
+            if (rig == null) return;
             CarPart wheel = current != null && current.Category == PartCategory.Wheel ? current : rig.Find("Tire_FL");
             if (wheel == null) wheel = FirstWheel();
             if (wheel == null) return;
@@ -417,6 +436,7 @@ namespace CarDesigner.UI
 
         CarPart FirstWheel()
         {
+            if (rig == null) return null;
             foreach (CarPart part in rig.Parts)
                 if (part.Category == PartCategory.Wheel) return part;
             return null;
@@ -424,17 +444,19 @@ namespace CarDesigner.UI
 
         void ResetSelected()
         {
-            if (current != null) rig.ResetPart(current);
+            if (current != null && rig != null) rig.ResetPart(current);
         }
 
         void ToggleDoors()
         {
+            if (rig == null) return;
             rig.DoorsOpen = !rig.DoorsOpen;
             UiKit.SetActive(doorsButton, rig.DoorsOpen);
         }
 
         void ToggleExplode()
         {
+            if (rig == null) return;
             rig.Exploded = !rig.Exploded;
             UiKit.SetActive(explodeButton, rig.Exploded);
         }
@@ -447,7 +469,7 @@ namespace CarDesigner.UI
 
         void ResetAll()
         {
-            rig.ResetAll();
+            if (rig != null) rig.ResetAll();
             selector.Select(null);
             orbit.ResetView();
             UiKit.SetActive(doorsButton, false);
@@ -485,7 +507,7 @@ namespace CarDesigner.UI
             if (statsTimer > 0f) return;
             statsTimer = 0.25f;
             statsText.text = string.Format(Invariant, "{0:0} FPS  ·  {1:0.0}K TRIS",
-                1f / Mathf.Max(smoothedFrameTime, 0.0001f), rig.TriangleCount / 1000f);
+                1f / Mathf.Max(smoothedFrameTime, 0.0001f), rig != null ? rig.TriangleCount / 1000f : 0f);
         }
 
         // ───────────────────────────── helpers ─────────────────────────────

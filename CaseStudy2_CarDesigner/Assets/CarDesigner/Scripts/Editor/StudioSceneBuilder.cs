@@ -693,11 +693,22 @@ namespace CarDesigner.EditorTools
             serialized.FindProperty("paletteKey").colorValue = materials.PaletteKey;
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
+            // CarSwitcher wraps the single car produced by the scene builder.
+            // When the user adds more cars in the Editor the switcher can hold them all.
+            var switcher = systems.AddComponent<CarSwitcher>();
+            var switcherSo = new SerializedObject(switcher);
+            var slots = switcherSo.FindProperty("slots");
+            slots.arraySize = 1;
+            var slot = slots.GetArrayElementAtIndex(0);
+            slot.FindPropertyRelative("displayName").stringValue = "Sports Coupe";
+            slot.FindPropertyRelative("rig").objectReferenceValue = rig;
+            slot.FindPropertyRelative("paint").objectReferenceValue = paint;
+            switcherSo.ApplyModifiedPropertiesWithoutUndo();
+
             var ui = new GameObject("Designer UI").AddComponent<DesignerUI>();
-            Set(ui, "rig", rig);
+            Set(ui, "switcher", switcher);
             Set(ui, "selector", selector);
             Set(ui, "orbit", orbit);
-            Set(ui, "paint", paint);
 
             var eventSystem = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             eventSystem.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
