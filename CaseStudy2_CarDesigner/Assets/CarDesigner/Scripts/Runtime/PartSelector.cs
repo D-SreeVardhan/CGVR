@@ -45,10 +45,15 @@ namespace CarDesigner
             SelectionChanged?.Invoke(part);
         }
 
+        /// <summary>
+        /// Smoothly frame <paramref name="part"/> so it fills the view cleanly.
+        /// Adjusts focus, distance, and snaps pitch to 18° for a clear three-quarter view.
+        /// </summary>
         public void Frame(CarPart part)
         {
             Bounds bounds = part.WorldBounds;
-            orbit.FocusOn(bounds.center, Mathf.Max(1.6f, bounds.size.magnitude * 2.2f));
+            float dist = Mathf.Clamp(bounds.size.magnitude * 2.2f, 1.6f, 12f);
+            orbit.FocusOn(bounds.center, dist, targetPitch: 18f);
         }
 
         void OnTap(Vector2 screenPosition) => Select(Pick(screenPosition));

@@ -85,10 +85,20 @@ namespace CarDesigner
             ApplyTransform();
         }
 
-        public void FocusOn(Vector3 point, float viewDistance)
+        /// <summary>
+        /// Smoothly move the camera to look at <paramref name="point"/> from <paramref name="viewDistance"/>
+        /// away. Optionally snap pitch to <paramref name="targetPitch"/> degrees for a clean framing angle.
+        /// Pass null to leave the pitch unchanged.
+        /// </summary>
+        public void FocusOn(Vector3 point, float viewDistance, float? targetPitch = null)
         {
-            focusGoal = ClampFocus(point);
+            // Use the actual world point; bypass the pan-radius clamp so framing always works.
+            Vector3 clamped = point;
+            clamped.y = Mathf.Clamp(clamped.y, 0.05f, 2.4f);
+            focusGoal = clamped;
             distanceGoal = Mathf.Clamp(viewDistance, distanceLimits.x, distanceLimits.y);
+            if (targetPitch.HasValue)
+                pitchGoal = Mathf.Clamp(targetPitch.Value, pitchLimits.x, pitchLimits.y);
         }
 
         public void ResetView()
