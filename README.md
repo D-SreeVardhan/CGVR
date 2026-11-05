@@ -26,6 +26,28 @@
 
 ---
 
+## Case Study 2 · Atelier Car Designer
+
+> **CS4104 · Case Study 2 — Industrial Design & Architecture**
+
+A fully interactive **1:1 scale VR car designer** built in Unity 6 (URP) for the Bengaluru–Detroit collaborative prototyping scenario. Two car models (Sports Coupe, Retro Coupe) are loaded at runtime; the designer can select any component, apply a live composite **T·R·S transform** (translate mm, rotate °, scale ×), switch paint finishes, open doors, and trigger an exploded view — all while a live 4×4 matrix panel shows the exact homogeneous transform.
+
+| Topic | Implementation |
+|---|---|
+| **Geometric Modeling** | B-Rep NURBS → tessellated FBX import; CSG-style procedural `DiscMesh`/`RingMesh` |
+| **Composite T·R·S** | `CarPart.ApplyPose()` — pivot-centred `p′ = c + t + R·(s·(p−c))`, mm-integer precision |
+| **Clipping & HSR** | Sutherland–Hodgman frustum cull · Z-buffer (32-bit, reverse-Z) · back-face cull · Umbra PVS |
+| **Rendering** | URP Forward+, MSAA 4×, Single-Pass Instanced stereo, chromatic-key paint recolouring |
+| **Platforms** | macOS Standalone · Android · WebGL |
+
+![Studio idle](CaseStudy2_CarDesigner/output/Runtime_idle.png)
+![Transform preset](CaseStudy2_CarDesigner/output/Runtime_preset.png)
+![Exploded view](CaseStudy2_CarDesigner/output/Runtime_exploded.png)
+
+📄 **[Case Study Report (Word)](CaseStudy2_CarDesigner/CaseStudy2_Report.docx)**
+
+---
+
 ## Lab Highlights
 
 ### Labs 1 – 7 · Python / PyOpenGL
