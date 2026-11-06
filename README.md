@@ -44,7 +44,15 @@ A fully interactive **1:1 scale VR car designer** built in Unity 6 (URP) for the
 ![Transform preset](CaseStudy2_CarDesigner/output/Runtime_preset.png)
 ![Exploded view](CaseStudy2_CarDesigner/output/Runtime_exploded.png)
 
-📄 **[Case Study Report (Word)](CaseStudy2_CarDesigner/CaseStudy2_Report.docx)**
+📄 **[Case Study Report (Word)](CaseStudy2_CarDesigner/CaseStudy2_Report.docx)** · **[How to run](CaseStudy2_CarDesigner/HOW_TO_RUN.md)**
+
+### Run it yourself (Unity 6)
+
+1. Install **Unity 6000.6.6f1** from Unity Hub (any nearby Unity 6 release also works).
+2. Hub → **Add project from disk** → select the `CaseStudy2_CarDesigner` folder.
+3. Open `Assets/CarDesigner/Scenes/CarStudio` and press **Play**.
+
+First import takes a few minutes while Unity generates `Library/`. Full controls and troubleshooting: [HOW_TO_RUN.md](CaseStudy2_CarDesigner/HOW_TO_RUN.md).
 
 ---
 
@@ -77,6 +85,10 @@ cd CGVR_LAB<N>
 pip install -r requirements.txt   # PyOpenGL + PyOpenGL_accelerate
 python <script>.py
 ```
+
+## Running Case Study 2
+
+See [CaseStudy2_CarDesigner/HOW_TO_RUN.md](CaseStudy2_CarDesigner/HOW_TO_RUN.md). Short version: add `CaseStudy2_CarDesigner` in Unity Hub, open `CarStudio`, press Play.
 
 ## Running the Unity labs (8, 9, 10)
 
