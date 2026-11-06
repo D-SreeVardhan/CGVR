@@ -73,6 +73,38 @@ Do not delete `.meta` files. Unity uses them to keep scene references intact.
 
 ---
 
+## Use a different car (same scripts)
+
+The C# does **not** bake in one mesh. Any FBX with separate body / wheel / door meshes can drive `CarRig` + `CarPart` + `DesignerUI`. Each teammate can demo a different car.
+
+### Free models to download (pick one)
+
+| Car | Download | Why it works |
+|---|---|---|
+| **Kenney Car Kit** (sedan, hatchback, taxi, police, truck…) | [kenney.nl/assets/car-kit](https://kenney.nl/assets/car-kit) · CC0 · FBX | 40+ vehicles, **wheels are separate files** — easiest swap. Each person picks a different vehicle from the same zip. |
+| **Free Low Poly Car** (Unity Asset Store) | [assetstore.unity.com — Free Low Poly Car](https://assetstore.unity.com/packages/3d/vehicles/land/free-low-poly-car-329692) · free · FBX | URP-ready, separated wheels, body / glass / lights as their own materials. |
+| **Kay Lousberg Hatchback** | [poly.pizza/m/BG0KAhmGDt](https://poly.pizza/m/BG0KAhmGDt) · CC0 · FBX | Single hatchback, clean hierarchy, good if you want one extra daily-driver look. |
+
+Prefer models whose **wheels, body, and doors are separate meshes**. A single welded mesh still runs, but you cannot select a rim or apply the CASE PRESET to one wheel.
+
+### Wire it up (do not copy or rewrite scripts)
+
+1. Drop the `.fbx` into `Assets/CarDesigner/Models/`. In the Inspector: **Scale Factor = 1**, uncheck **Use File Scale**, Apply.
+2. Drag the FBX into the `CarStudio` scene. If it is tiny or huge, set the root scale (try `1` or `0.01` until the car is about 4 m long).
+3. On the **empty root** of that car: **Add Component → Car Rig**.
+4. On **every mesh child** (body, each wheel, each door…): **Add Component → Car Part** and **Mesh Collider** (assign the same mesh). Set `Car Part → Category`:
+   - body shell → **Body**
+   - each wheel → **Wheel**
+   - each door → **Door**
+   - glass → **Glass**
+   - seats / wheel / dash → **Interior**
+5. Select **Studio Systems** in the Hierarchy. On `Car Switcher`, add a slot: Display Name, Rig = your new `CarRig`, Paint = existing `CarPaint` (or duplicate `CarPaint.mat` for a second colour set).
+6. Press Play. The top bar should show the new car name; FRAME, CASE PRESET, paint, doors, explode all use the same scripts.
+
+Do **not** change `CarPart.cs`, `CarRig.cs`, or `DesignerUI.cs`. Those already apply `p′ = c + t + R·(s·(p − c))` to whatever mesh is selected.
+
+---
+
 ## If something goes wrong
 
 | Symptom | Fix |
